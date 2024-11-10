@@ -97,14 +97,6 @@ def chat():
                     }
                 ]
             }
-        else:
-            data = {
-                "contents": [
-                    {
-                        "parts": [{"text":user_message}]
-                    }
-                ]
-            }
 
         print(data)
         # Send the request to the Gemini API
