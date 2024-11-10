@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Planner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f7fc;
+            color: #333;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #00796b;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 90vw;
+            margin: 0 auto;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            height: 60px;
+            width: 60px;
+            margin-right: 15px;
+        }
+
+        h1 {
+            font-size: 3.5vw;
+            margin: 0;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 4.5vw;
+            }
+            img {
+                height: 50px;
+                width: 50px;
+            }
+        }
+
+        #chatbox {
+            width: 100%;
+            max-width: 650px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            height: 350px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        #chatbox p {
+            padding: 8px;
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        #chatbox p.bot {
+            background-color: #e3f2fd;
+            border-radius: 5px;
+            padding: 10px;
+            color: #333;
+        }
+
+        #input-area {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        #userInput {
+            width: 75%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #00796b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #004d40;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #start-btn {
+            margin: 20px auto;
+            display: block;
+            background-color: #e57373;
+            color: white;
+        }
+
+        #start-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="static/images/logo.png" alt="Mind Mitra Logo">
+        <h1>Meal Planner: Helper to Reduce Food Wastage</h1>
+    </header>
+
+    <div id="chat-container">
+        <div id="chatbox"></div>
+        <div id="input-area">
+            <input type="text" id="userInput" placeholder="Type here..." oninput="toggleSendButton()">
+            <button id="sendButton" onclick="sendMessage()" disabled>Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Automatically start the conversation when the page loads
+        window.onload = function() {
+            startChat();
+        };
+
+        // Starts a new conversation by clearing chat and asking the user to enter their username
+        function startChat() {
+            const chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML = `<p class="bot"><strong>Helper:</strong> Welcome to the Meal Planner! Please tell me your hotel or restaurant username to get started.</p>`;
+            fetch('/clear', { method: 'POST' });
+        }
+
+        let username =""
+
+        // Sends user message and fetches the response
+        function sendMessage() {
+            const message = document.getElementById('userInput').value;
+            if (message.trim() === '') return;
+            if(username=="") username = message;
+            
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username:username, user_message: message }) // Sending message as JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+                const chatbox = document.getElementById('chatbox');
+                chatbox.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+                chatbox.innerHTML += `<p class="bot"><strong>Helper:</strong> ${data.reply}</p>`;
+                document.getElementById('userInput').value = '';
+                chatbox.scrollTop = chatbox.scrollHeight;
+                toggleSendButton();
+            })
+            .catch(error => {
+                console.error(error);
+                const chatbox = document.getElementById('chatbox');
+                chatbox.innerHTML += `<p class="bot"><strong>Error:</strong> There was an issue with your request. Please try again.</p>`;
+            });
+        }
+
+        // Enables the send button when the user starts typing
+        function toggleSendButton() {
+            const userInput = document.getElementById('userInput').value;
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = userInput.trim() === '';
+        }
+    </script>
+</body>
+</html>
