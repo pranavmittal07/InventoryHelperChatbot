@@ -79,7 +79,7 @@ def chat():
         # Start conversation if not already done
         if len(session['conversation_history']) == 0:
             initial_instruction = f"""
-            I will provide data in JSON format about my inventory: {product_data} & don't show numeric data in response just chat like a normal person providing suggestions on portion control and meal planning based on inventory including expiry dates in concise way. dont add numeric details regarding expiry dates in your answer and 
+            I will provide data in JSON format about my inventory: {product_data} & don't show numeric data in response just chat like a normal person providing suggestions on portion control and meal planning based on inventory including expiry dates in concise way regarding expiry dates in your answer and 
             """
             session['conversation_history'].append({"text": initial_instruction})
         else: 
@@ -87,16 +87,14 @@ def chat():
 
         # print(f"Conversation history: {session['conversation_history']}")
         
-        data={}
 
-        if username == user_message:
-            data = {
-                "contents": [
-                    {
-                        "parts": session['conversation_history']
-                    }
-                ]
-            }
+        data = {
+            "contents": [
+                {
+                    "parts": session['conversation_history']
+                }
+            ]
+        }
 
         print(data)
         # Send the request to the Gemini API
